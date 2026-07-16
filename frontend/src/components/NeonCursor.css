@@ -1,0 +1,57 @@
+@media (min-width: 769px) {
+  * {
+    cursor: none !important;
+  }
+}
+
+.neon-cursor-container {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+}
+
+.cursor-main {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #ec6517;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 0 10px #ec6517, 0 0 20px #ec6517;
+  will-change: transform;
+}
+
+.cursor-trail {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #ec6517;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+}
+
+.cursor-glow {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background-color: #ec6517;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  filter: blur(20px);
+  opacity: 0.4;
+  will-change: transform;
+}
+
+@media (max-width: 768px) {
+  .neon-cursor-container {
+    display: none;
+  }
+}
