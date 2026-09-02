@@ -13,6 +13,8 @@ import AboutUsPage from './pages/AboutUsPage';
 import ContactUsPage from './pages/ContactUsPage';
 import PrintersPage from './pages/PrintersPage';
 import CareerPage from './pages/CareerPage';
+import GalleryPage from './pages/GalleryPage';
+import ThankYouPage from './pages/ThankYouPage';
 import AdminPage from './pages/AdminPage';
 
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -45,6 +47,8 @@ export default function App() {
             <Route path="/" element={<HomePage onEnroll={openEnrollment} />} />
             <Route path="/about" element={<AboutUsPage />} />
             <Route path="/career" element={<CareerPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/thank-you" element={<ThankYouPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-conditions" element={<TermsAndConditionsPage />} />
             <Route path="/refund-policy" element={<RefundPolicyPage />} />

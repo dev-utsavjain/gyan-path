@@ -11,6 +11,7 @@ export interface StudentDetails {
   qualification: string;
   address: string;
   coordinator_name: string;
+  coordinator_code: string;
 }
 
 interface RazorpayOrder {

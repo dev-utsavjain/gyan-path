@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, type FormEvent, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Loader2, LogOut, RefreshCw, ShieldCheck, IndianRupee, AlertCircle, Video, X, CheckCircle2, Mail, Phone, MessageSquare, CreditCard, BookOpen, Settings as SettingsIcon, Plus, Pencil, Trash2, Save } from 'lucide-react';
+import { Loader2, LogOut, RefreshCw, ShieldCheck, IndianRupee, AlertCircle, Video, X, CheckCircle2, Mail, Phone, MessageSquare, CreditCard, BookOpen, Settings as SettingsIcon, Plus, Pencil, Trash2, Save, Users, Image as ImageIcon } from 'lucide-react';
 import {
   adminLogin,
   adminLogout,
@@ -25,6 +25,8 @@ import {
 } from '../api/courses';
 import { fetchSettings, updateSettings, type Settings } from '../api/settings';
 import { ApiError } from '../api/client';
+import CoordinatorsTab from '../components/admin/CoordinatorsTab';
+import GalleryTab from '../components/admin/GalleryTab';
 
 const CATEGORY_LABELS: Record<CourseCategory, string> = {
   basic: 'Basic Plan',
@@ -42,6 +44,7 @@ const SETTINGS_GROUPS: { title: string; fields: { key: string; label: string; ty
       { key: 'contact_phone_raw', label: 'Phone (digits only, for tel/WhatsApp)', type: 'text' },
       { key: 'contact_email', label: 'Email', type: 'text' },
       { key: 'contact_address', label: 'Office address', type: 'textarea' },
+      { key: 'whatsapp_group_link', label: 'Private WhatsApp group invite link (shown after purchase)', type: 'text' },
     ],
   },
   {
@@ -69,7 +72,7 @@ const SETTINGS_GROUPS: { title: string; fields: { key: string; label: string; ty
 
 const STATUS_FILTERS = ['all', 'paid', 'pending', 'failed'] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
-type Tab = 'payments' | 'messages' | 'courses' | 'settings';
+type Tab = 'payments' | 'messages' | 'courses' | 'coordinators' | 'gallery' | 'settings';
 
 function statusBadge(status: Payment['status']) {
   const map: Record<Payment['status'], string> = {
@@ -336,6 +339,7 @@ function PaymentsTab({ onAuthError, showToast }: { onAuthError: () => void; show
                 <th className="text-left font-semibold px-4 py-3">Student</th>
                 <th className="text-left font-semibold px-4 py-3">Contact</th>
                 <th className="text-left font-semibold px-4 py-3">Course</th>
+                <th className="text-left font-semibold px-4 py-3">Coordinator</th>
                 <th className="text-right font-semibold px-4 py-3">Amount</th>
                 <th className="text-left font-semibold px-4 py-3">Status</th>
                 <th className="text-left font-semibold px-4 py-3">Date</th>
@@ -345,13 +349,13 @@ function PaymentsTab({ onAuthError, showToast }: { onAuthError: () => void; show
             <tbody className="divide-y divide-gray-100">
               {loading && payments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-gray-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-gray-400">
                     <Loader2 size={24} className="animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : payments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-gray-400">No payments found.</td>
+                  <td colSpan={8} className="px-4 py-12 text-center text-gray-400">No payments found.</td>
                 </tr>
               ) : (
                 payments.map((p) => (
@@ -365,6 +369,16 @@ function PaymentsTab({ onAuthError, showToast }: { onAuthError: () => void; show
                       <div className="text-xs text-gray-400">{p.email || '—'}</div>
                     </td>
                     <td className="px-4 py-3 text-gray-700">{p.course_name}</td>
+                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                      {p.coordinator_code ? (
+                        <>
+                          <div>{p.coordinator_name || '—'}</div>
+                          <div className="text-xs font-mono font-bold text-blue-800">{p.coordinator_code}</div>
+                        </>
+                      ) : (
+                        <span className="text-gray-400">{p.coordinator_name || '—'}</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-900 whitespace-nowrap">
                       <IndianRupee size={12} className="inline -mt-0.5" />{p.amount.toLocaleString('en-IN')}
                     </td>
@@ -857,12 +871,16 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         {tabBtn('payments', 'Payments', <CreditCard size={16} />)}
         {tabBtn('messages', 'Messages', <MessageSquare size={16} />)}
         {tabBtn('courses', 'Courses', <BookOpen size={16} />)}
+        {tabBtn('coordinators', 'Coordinators', <Users size={16} />)}
+        {tabBtn('gallery', 'Gallery', <ImageIcon size={16} />)}
         {tabBtn('settings', 'Settings', <SettingsIcon size={16} />)}
       </div>
 
       {tab === 'payments' && <PaymentsTab onAuthError={onLogout} showToast={showToast} />}
       {tab === 'messages' && <MessagesTab onAuthError={onLogout} showToast={showToast} />}
       {tab === 'courses' && <CoursesTab onAuthError={onLogout} showToast={showToast} />}
+      {tab === 'coordinators' && <CoordinatorsTab onAuthError={onLogout} showToast={showToast} />}
+      {tab === 'gallery' && <GalleryTab onAuthError={onLogout} showToast={showToast} />}
       {tab === 'settings' && <SettingsTab onAuthError={onLogout} showToast={showToast} />}
 
       {toast && (

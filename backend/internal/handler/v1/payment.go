@@ -3,6 +3,7 @@ package v1
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"imagine_backend/internal/db"
 	"imagine_backend/internal/models"
@@ -25,6 +26,7 @@ type createOrderRequest struct {
 	Qualification   string `json:"qualification"`
 	Address         string `json:"address"`
 	CoordinatorName string `json:"coordinator_name"`
+	CoordinatorCode string `json:"coordinator_code"`
 }
 
 // CreatePaymentOrder handles POST /v1/payments/order. It creates a Razorpay
@@ -44,6 +46,19 @@ func CreatePaymentOrder(c *gin.Context) {
 	if req.Amount <= 0 || req.CourseName == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "course_name and a positive amount are required"})
 		return
+	}
+
+	// The form submits the coordinator's code; the name is taken from the
+	// coordinator record rather than the request, so the stored attribution
+	// can't disagree with itself.
+	req.CoordinatorCode = strings.ToUpper(strings.TrimSpace(req.CoordinatorCode))
+	if req.CoordinatorCode != "" {
+		var coord models.Coordinator
+		if err := db.DB.Where("code = ?", req.CoordinatorCode).First(&coord).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "unknown coordinator code"})
+			return
+		}
+		req.CoordinatorName = coord.Name
 	}
 
 	order, err := payment.Client.CreateOrder(c.Request.Context(), razorpay.OrderRequest{
@@ -74,6 +89,7 @@ func CreatePaymentOrder(c *gin.Context) {
 		Qualification:   req.Qualification,
 		Address:         req.Address,
 		CoordinatorName: req.CoordinatorName,
+		CoordinatorCode: req.CoordinatorCode,
 		Status:          models.PaymentStatusPending,
 	}
 	if err := db.DB.Create(&row).Error; err != nil {

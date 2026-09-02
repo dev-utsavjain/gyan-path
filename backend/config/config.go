@@ -23,6 +23,13 @@ type Config struct {
 	RazorpayKeyID     string
 	RazorpayKeySecret string
 	RazorpayCurrency  string
+
+	// Cloudinary — object storage for gallery uploads. Blank disables uploads
+	// (pasted links still work).
+	CloudinaryCloudName string
+	CloudinaryAPIKey    string
+	CloudinaryAPISecret string
+
 	FrontendURL           string
 	AdminUsername         string
 	AdminPassword         string
@@ -67,6 +74,11 @@ func LoadConfig() {
 		RazorpayKeyID:     os.Getenv("RAZORPAY_KEY_ID"),
 		RazorpayKeySecret: os.Getenv("RAZORPAY_KEY_SECRET"),
 		RazorpayCurrency:  os.Getenv("RAZORPAY_CURRENCY"),
+
+		CloudinaryCloudName: os.Getenv("CLOUDINARY_CLOUD_NAME"),
+		CloudinaryAPIKey:    os.Getenv("CLOUDINARY_API_KEY"),
+		CloudinaryAPISecret: os.Getenv("CLOUDINARY_API_SECRET"),
+
 		FrontendURL:           os.Getenv("FRONTEND_URL"),
 		AdminUsername:         os.Getenv("ADMIN_USERNAME"),
 		AdminPassword:         os.Getenv("ADMIN_PASSWORD"),

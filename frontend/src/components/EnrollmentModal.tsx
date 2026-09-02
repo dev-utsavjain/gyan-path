@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { X, Loader2, AlertCircle } from 'lucide-react';
 import GlareHover from './GlareHover';
 import { startPayment, type StudentDetails } from '../api/payment';
+import { fetchCoordinators, coordinatorLabel, type Coordinator } from '../api/coordinators';
 
 interface EnrollmentModalProps {
   isOpen: boolean;
@@ -21,14 +23,33 @@ const EMPTY_FORM = {
   email: '',
   qualification: '',
   address: '',
-  coordinatorName: 'NA',
+  // The code identifies the coordinator; '' means "none / not applicable".
+  coordinatorCode: '',
 };
 
 export default function EnrollmentModal({ isOpen, onClose, planDetails = { planName: 'GyaanPath Digital Career Development Program', price: 399, priceText: '₹399' } }: EnrollmentModalProps) {
+  const navigate = useNavigate();
   const [form, setForm] = useState(EMPTY_FORM);
   const [paying, setPaying] = useState(false);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [coordinators, setCoordinators] = useState<Coordinator[]>([]);
+
+  // Loaded when the modal opens so a coordinator added in admin shows up
+  // without a page refresh.
+  useEffect(() => {
+    if (!isOpen) return;
+    let alive = true;
+    fetchCoordinators()
+      .then((list) => {
+        if (alive) setCoordinators(list);
+      })
+      .catch(() => {
+        /* dropdown falls back to "not applicable" only */
+      });
+    return () => {
+      alive = false;
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -39,9 +60,10 @@ export default function EnrollmentModal({ isOpen, onClose, planDetails = { planN
     setForm(EMPTY_FORM);
     setError(null);
     setPaying(false);
-    setPaymentSuccess(false);
     onClose();
   };
+
+  const selectedCoordinator = coordinators.find((c) => c.code === form.coordinatorCode);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +79,9 @@ export default function EnrollmentModal({ isOpen, onClose, planDetails = { planN
       email: form.email.trim(),
       qualification: form.qualification,
       address: form.address.trim(),
-      coordinator_name: form.coordinatorName.trim() || 'NA',
+      // The backend fills the name from the code, so it can never disagree.
+      coordinator_name: selectedCoordinator ? selectedCoordinator.name : 'NA',
+      coordinator_code: form.coordinatorCode,
     };
 
     setPaying(true);
@@ -65,8 +89,12 @@ export default function EnrollmentModal({ isOpen, onClose, planDetails = { planN
       details,
       onSuccess: () => {
         setPaying(false);
-        setPaymentSuccess(true);
-        setTimeout(closeAll, 3500);
+        // Joining the private WhatsApp group is the one thing a paid student
+        // must still do, so success is a full page, not a modal message.
+        closeAll();
+        navigate('/thank-you', {
+          state: { studentName: details.student_name, courseName: details.course_name },
+        });
       },
       onFailure: (message) => {
         setPaying(false);
@@ -92,13 +120,6 @@ export default function EnrollmentModal({ isOpen, onClose, planDetails = { planN
         </div>
 
         <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
-          {paymentSuccess ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <CheckCircle size={64} className="text-green-500 mb-4" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h3>
-              <p className="text-gray-600">Your enrollment is confirmed. Welcome to GyaanPath Digital.</p>
-            </div>
-          ) : (
           <form id="enrollment-form" className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
@@ -151,9 +172,25 @@ export default function EnrollmentModal({ isOpen, onClose, planDetails = { planN
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Coordinator Name *</label>
-              <input type="text" value={form.coordinatorName} onChange={update('coordinatorName')} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="If not available, fill NA" required />
-              <p className="text-xs text-gray-500 mt-1">If not available fill NA</p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Coordinator *</label>
+              <div className="relative">
+                <select
+                  value={form.coordinatorCode}
+                  onChange={update('coordinatorCode')}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none bg-white"
+                >
+                  <option value="">Not applicable (NA)</option>
+                  {coordinators.map((c) => (
+                    <option key={c.id} value={c.code}>{coordinatorLabel(c)}</option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Select the coordinator who guided you, with their code. If nobody did, leave it as Not applicable.
+              </p>
             </div>
 
             <div>
@@ -180,10 +217,8 @@ export default function EnrollmentModal({ isOpen, onClose, planDetails = { planN
               </div>
             </div>
           </form>
-          )}
         </div>
 
-        {!paymentSuccess && (
         <div className="p-6 border-t border-gray-100 bg-white sticky bottom-0 z-10">
           <button
             type="submit"
@@ -203,7 +238,6 @@ export default function EnrollmentModal({ isOpen, onClose, planDetails = { planN
             </GlareHover>
           </button>
         </div>
-        )}
       </div>
     </div>
   );

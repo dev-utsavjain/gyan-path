@@ -15,6 +15,7 @@ export interface Payment {
   qualification: string;
   address: string;
   coordinator_name: string;
+  coordinator_code: string;
   status: 'pending' | 'paid' | 'failed';
   failure_reason?: string;
   paid_at?: string | null;

@@ -36,6 +36,7 @@ export default function Header({ onEnroll }: HeaderProps) {
           <Link className={getNavClass('/')} to="/">Home</Link>
           <Link className={getNavClass('/about')} to="/about">About Us</Link>
           <Link className={getNavClass('/career')} to="/career">Career</Link>
+          <Link className={getNavClass('/gallery')} to="/gallery">Gallery</Link>
           <Link className={getNavClass('/contact')} to="/contact">Contact Us</Link>
         </nav>
         {/* CTA */}
@@ -68,6 +69,7 @@ export default function Header({ onEnroll }: HeaderProps) {
           <Link className={getMobileNavClass('/')} to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
           <Link className={getMobileNavClass('/about')} to="/about" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
           <Link className={getMobileNavClass('/career')} to="/career" onClick={() => setIsMobileMenuOpen(false)}>Career</Link>
+          <Link className={getMobileNavClass('/gallery')} to="/gallery" onClick={() => setIsMobileMenuOpen(false)}>Gallery</Link>
           <Link className={getMobileNavClass('/contact')} to="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</Link>
           
           <a href="tel:+917974889250" className="flex items-center text-blue-900 font-semibold pt-4 border-t border-gray-100 hover:text-orange-500 transition-colors">

@@ -19,6 +19,7 @@ export const DEFAULT_SETTINGS: Settings = {
   plan_additional_blurb: 'Unlock 7 vital support services including legal, medical, and career guidance. We stand exclusively with you.',
   plan_upcoming_blurb: 'Prepare yourself for our next wave of comprehensive courses coming soon.',
   plan_upcoming_price: '499',
+  whatsapp_group_link: 'https://chat.whatsapp.com/DJ8KtcQWDPqIF5M8ppwscV?s=cl&p=a&mlu=4',
 };
 
 interface SettingsContextValue {

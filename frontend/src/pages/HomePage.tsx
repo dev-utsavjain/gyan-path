@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import Hero from '../components/Hero';
 import StatsBar from '../components/StatsBar';
 import Courses from '../components/Courses';
+import GallerySection from '../components/GallerySection';
 import AboutUs from '../components/AboutUs';
 import ContactUs from '../components/ContactUs';
 
@@ -19,6 +20,7 @@ export default function HomePage({ onEnroll }: HomePageProps) {
       <Hero onEnroll={() => onEnroll()} />
       <StatsBar />
       <Courses onEnroll={(name, price, priceText) => onEnroll(name, price, priceText)} />
+      <GallerySection />
       <AboutUs />
       <ContactUs />
     </div>

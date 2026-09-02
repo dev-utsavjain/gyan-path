@@ -42,6 +42,10 @@ func seedSettings(db *gorm.DB) {
 		"plan_additional_blurb": "Unlock 7 vital support services including legal, medical, and career guidance. We stand exclusively with you.",
 		"plan_upcoming_blurb":   "Prepare yourself for our next wave of comprehensive courses coming soon.",
 		"plan_upcoming_price":   "499",
+		// Private WhatsApp group students are sent to after paying — class
+		// links and updates are shared only there, so this is the one
+		// post-purchase action that matters.
+		"whatsapp_group_link": "https://chat.whatsapp.com/DJ8KtcQWDPqIF5M8ppwscV?s=cl&p=a&mlu=4",
 	}
 
 	created := 0

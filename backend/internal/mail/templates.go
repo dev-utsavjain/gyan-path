@@ -51,6 +51,18 @@ func money(p models.Payment) string {
 	return fmt.Sprintf("%s %d", cur, p.Amount)
 }
 
+// coordinatorLabel renders the attribution as "Name — CODE", the same way the
+// enrollment form presents it, so the owner can match an order to an employee.
+func coordinatorLabel(p models.Payment) string {
+	if p.CoordinatorCode == "" {
+		return p.CoordinatorName
+	}
+	if p.CoordinatorName == "" {
+		return p.CoordinatorCode
+	}
+	return p.CoordinatorName + " — " + p.CoordinatorCode
+}
+
 func rows(pairs [][2]string) template.HTML {
 	var b strings.Builder
 	b.WriteString(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">`)
@@ -108,7 +120,7 @@ func PaymentNotificationToOwner(p models.Payment, adminURL string) (subject, bod
 		{"Order ID", p.OrderID},
 		{"Payment ID", p.PaymentID},
 		{"Qualification", p.Qualification},
-		{"Coordinator", p.CoordinatorName},
+		{"Coordinator", coordinatorLabel(p)},
 	})
 	var cta template.HTML
 	if adminURL != "" {

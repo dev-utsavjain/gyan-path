@@ -26,5 +26,7 @@ func Migrate() error {
 		&models.ContactMessage{},
 		&models.Course{},
 		&models.Setting{},
+		&models.Coordinator{},
+		&models.GalleryItem{},
 	)
 }

@@ -23,6 +23,7 @@ type Payment struct {
 	Qualification   string     `json:"qualification"`
 	Address         string     `json:"address"`
 	CoordinatorName string     `json:"coordinator_name"`
+	CoordinatorCode string     `gorm:"index" json:"coordinator_code"`
 	Status          string     `gorm:"not null;default:'pending';index" json:"status"`
 	FailureReason   string     `json:"failure_reason,omitempty"`
 	PaidAt          *time.Time `json:"paid_at,omitempty"`
